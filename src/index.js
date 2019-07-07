@@ -6,6 +6,23 @@ import "./index.css";
 const getWinner = (squares) =>
 {
 	
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
+    }
+  }
+  return null;
 };
 
 function Square (props)
@@ -16,6 +33,7 @@ function Square (props)
 		{props.status}
 		</button>);
 }
+
 
 class Board extends React.Component
 {
@@ -29,7 +47,9 @@ class Board extends React.Component
 	}
 	render()
 	{
-		var status = "Next player : " + (this.props.position.xIsNext ? "X" : "O");
+		let winner = getWinner(this.props.position.squares);
+		var status = (winner ? `${winner} wins!` : 
+			"Next player : " + (this.props.position.xIsNext ? "X" : "O"));
 		return (
 			<div>
 				<div className="board">
@@ -77,10 +97,9 @@ class Game extends React.Component
 
 	handleClick(i)
 	{
-		debugger;
 		var position = {...(this.state.history[this.state.currentIndex])};
 		let squares = [...position.squares];
-		if (squares[i])
+		if (squares[i] || getWinner(squares))
 			return;
 		squares[i] = position.xIsNext ? "X" : "O";
 		position.xIsNext = !(position.xIsNext);
