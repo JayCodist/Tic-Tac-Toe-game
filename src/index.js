@@ -5,7 +5,6 @@ import "./index.css";
 
 const getWinner = (squares) =>
 {
-	
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -33,7 +32,24 @@ function Square (props)
 		{props.status}
 		</button>);
 }
+class Move
+{
+	constructor(squares, play, location)
+	{
+		this._squares_Private = squares;
+		this._xIsNext_Private = (play === "X" ? false : true);
+		let _playPrivate = play;
+		let _locationPrivate = location;
+		// Immutable properties captured with closure
+		this.toString = function ()
+		{
+			return (_playPrivate ? `${_playPrivate} on ${_locationPrivate}` : " Game Start ");
+		}
+	}
 
+	get squares () { return this._squares_Private; }
+	get xIsNext () { return this._xIsNext_Private; }
+}
 
 class Board extends React.Component
 {
@@ -48,7 +64,7 @@ class Board extends React.Component
 	render()
 	{
 		let winner = getWinner(this.props.position.squares);
-		var status = (winner ? `${winner} wins!` : 
+		var status = (winner ? `Player ${winner} wins!` : 
 			"Next player : " + (this.props.position.xIsNext ? "X" : "O"));
 		return (
 			<div>
@@ -79,6 +95,23 @@ class Board extends React.Component
 	
 }
 
+const History = (props) =>
+{
+	let list = [];
+	for (var i = 0; i < props.history.length; i++)
+	{
+		list.push(<li 
+			key={props.history[i]}
+			data-key={props.history[i]}
+			className={(i === props.currentIndex ? "current-position" : "moves-list") }
+			onClick={props.onClick}
+			>
+			{String(props.history[i])}
+			</li>);
+	}
+	return list;
+}
+
 class Game extends React.Component
 {
 	constructor(props)
@@ -86,26 +119,28 @@ class Game extends React.Component
 		super(props);
 		this.state = 
 		{
-			history: [
-			{
-				squares: Array(9).fill(null),
-				xIsNext: true
-			}],
+			history: [new Move(new Array(9).fill(null), null, null)],
 			currentIndex: 0
 		};
 	}
 
+	goToMove(e)
+	{
+		let newIndex = this.state.history.map(item => String(item)).indexOf(e.target.dataset.key)
+		this.setState({currentIndex: newIndex});
+	}
+
 	handleClick(i)
 	{
-		var position = {...(this.state.history[this.state.currentIndex])};
-		let squares = [...position.squares];
+		var oldMove = (this.state.history[this.state.currentIndex]);
+		let squares = [...oldMove.squares];
 		if (squares[i] || getWinner(squares))
 			return;
-		squares[i] = position.xIsNext ? "X" : "O";
-		position.xIsNext = !(position.xIsNext);
-		position.squares = squares;
+		squares[i] = oldMove.xIsNext ? "X" : "O";
+		var newMove = new Move(squares, (oldMove.xIsNext ? "X" : "O"), i);
+		let history = this.state.history.slice(0, this.state.currentIndex + 1);
 		this.setState({
-			history: this.state.history.concat(position),
+			history: history.concat(newMove),
 			currentIndex: this.state.currentIndex + 1,
 			});
 	}
@@ -120,6 +155,13 @@ class Game extends React.Component
 				onClick={i => this.handleClick(i)}
 				/>
 				</div>
+				<ol className="history">
+				<History 
+				history={this.state.history} 
+				currentIndex={this.state.currentIndex}
+				onClick={move => this.goToMove(move)}
+				/>
+				</ol>
 			</div>
 			);
 	}

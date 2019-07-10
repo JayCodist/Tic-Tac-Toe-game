@@ -10,6 +10,11 @@
 	border: 1px solid #999;
 	padding: 0;
 }
+.square:hover
+{
+	background: #f3f2f2;
+	transition: 0.4s ease;
+}
 .squareRow
 {
 	display: flex;
@@ -22,4 +27,33 @@
 {
 	padding: 2em;
 	font-family: "segoe UI", "Calibri";
+	text-align: center;
+}
+.game
+{
+	display: flex;
+	flex-direction: row;
+}
+.history
+{
+	font-family: "Segoe UI", Calibri;
+	padding: 2em 2em;
+}
+.moves-list
+{
+	cursor: pointer;
+	text-align: center;
+	padding: 0px 3px;
+}
+.moves-list:hover
+{
+	color: darkblue;
+	background: #f0f09c;
+	transition: 0.4s ease;
+}
+.current-position
+{
+	cursor: default;
+	background: #aeae54;
+	text-align: center;
 }
